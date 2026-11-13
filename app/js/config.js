@@ -13,7 +13,7 @@
    ===================================================================== */
 window.OS_CONFIG = {
   SUPABASE_URL: "",        // ej: "https://abcdxyz.supabase.co"
-  SUPABASE_ANON_KEY: "",   // ej: "eyJhbGciOi..."
+  SUPABASE_ANON_KEY: "sb_publishable_lCSiBHkdQrdfS4rrZXDMJw_cxmFA4OB",   // ej: "eyJhbGciOi..."
 
   // WhatsApp del equipo para soporte (formato 57 + celular, sin + ni espacios). Opcional.
   WHATSAPP_EQUIPO: "",
