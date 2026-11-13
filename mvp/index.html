@@ -1,0 +1,360 @@
+<title>OficiosSincelejo</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Directorio de técnicos de oficios varios en Sincelejo con contacto directo por WhatsApp y sin comisión.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: barra de búsqueda arriba (oficio + barrio), rejilla de fichas de técnicos, ficha ampliada en panel, registro al final */
+:root{
+  --bg:#F3F6F8; --surface:#FFFFFF; --ink:#152229; --muted:#56656D; --line:#D9E1E6;
+  --sucre:#0B5C86; --sucre-soft:#E2EEF5; --corozo:#B3322B; --wa:#1E8A4B; --wa-ink:#FFFFFF; --star:#C98A0C;
+  --demo-bg:#FFF4D6; --demo-ink:#6B4B00;
+  --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F171B; --surface:#172329; --ink:#E6EEF2; --muted:#9AAAB2; --line:#2A3A42;
+  --sucre:#5DB3E0; --sucre-soft:#17313F; --corozo:#E06A5F; --wa:#2FA862; --wa-ink:#06200F; --star:#E9B341;
+  --demo-bg:#3A2F12; --demo-ink:#F3D58A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F171B; --surface:#172329; --ink:#E6EEF2; --muted:#9AAAB2; --line:#2A3A42;
+  --sucre:#5DB3E0; --sucre-soft:#17313F; --corozo:#E06A5F; --wa:#2FA862; --wa-ink:#06200F; --star:#E9B341;
+  --demo-bg:#3A2F12; --demo-ink:#F3D58A; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sucre);outline-offset:2px}
+
+.demo{background:var(--demo-bg);color:var(--demo-ink);font-size:14px}
+.demo .wrap{padding-block:10px}
+
+header.top{padding-block:28px 8px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:22px;color:var(--sucre)}
+.brand b{color:var(--corozo)}
+.hero{display:grid;gap:10px;margin-top:22px}
+.hero h1{font-size:clamp(30px,5vw,48px);font-weight:800;max-width:18ch}
+.hero p{margin:0;color:var(--muted);max-width:60ch;font-size:17px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.pill{font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--sucre-soft);color:var(--sucre)}
+
+.search{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-top:20px}
+.search .wrap{padding-block:14px;display:grid;gap:12px}
+.oficios{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.of{flex:0 0 auto;display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:600;cursor:pointer}
+.of svg{width:18px;height:18px}
+.of[aria-pressed="true"]{background:var(--sucre);border-color:var(--sucre);color:var(--surface)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row label{font-size:13px;font-weight:600;color:var(--muted)}
+select,input[type=text],input[type=tel],input[type=number],textarea{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;min-width:0}
+.row select{flex:1 1 180px}
+.count{font-size:14px;color:var(--muted);margin-left:auto}
+
+main{padding-block:22px 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;overflow:hidden}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line)}
+.thumb{aspect-ratio:1/1;max-width:100%;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:600;text-align:center;padding:6px}
+.cbody{padding:14px 16px 16px;display:grid;gap:8px;flex:1}
+.name{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.name h3{font-size:19px}
+.verif{font-size:12px;font-weight:700;color:var(--wa);white-space:nowrap}
+.meta{font-size:14px;color:var(--muted)}
+.stars{color:var(--star);font-weight:700;font-variant-numeric:tabular-nums}
+.price{font-weight:700;font-variant-numeric:tabular-nums}
+.price small{font-weight:500;color:var(--muted)}
+.tag-demo{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--demo-ink);background:var(--demo-bg);padding:2px 6px;border-radius:4px;justify-self:start}
+.actions{display:flex;gap:8px;margin-top:auto;padding-top:6px}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn-wa{background:var(--wa);color:var(--wa-ink);flex:1}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn svg{width:18px;height:18px}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:28px;text-align:center;color:var(--muted)}
+
+/* Panel de perfil */
+.ov{position:fixed;inset:0;background:rgba(5,15,20,.55);z-index:20;display:flex;justify-content:flex-end}
+.panel{background:var(--bg);width:min(560px,100%);height:100%;overflow-y:auto;padding:20px max(18px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px)) 18px;display:grid;gap:16px;align-content:start}
+.ph{display:flex;justify-content:space-between;align-items:start;gap:12px}
+.ph h2{font-size:26px}
+.close{background:var(--surface);border:1px solid var(--line);border-radius:999px;width:38px;height:38px;cursor:pointer;flex:0 0 auto;font-size:20px;line-height:1}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+.fact b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+.fact span{font-size:12px;color:var(--muted)}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gal .thumb{border-radius:8px}
+.sec h3{font-size:17px;margin-bottom:8px}
+.rev{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:4px}
+.rev p{margin:0}
+.rev .who{font-size:13px;color:var(--muted)}
+.msg{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:14px;white-space:pre-wrap}
+.note{font-size:13px;color:var(--muted);margin:0}
+
+/* Registro */
+.reg{background:var(--surface);border-top:1px solid var(--line)}
+.reg .wrap{padding-block:36px;display:grid;gap:22px;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}
+@media (max-width:760px){.reg .wrap{grid-template-columns:1fr}.facts{grid-template-columns:repeat(3,1fr)}}
+.reg h2{font-size:30px}
+.reg ul{margin:12px 0 0;padding-left:20px;color:var(--muted)}
+form{display:grid;gap:12px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){.f2{grid-template-columns:1fr}}
+.fld{display:grid;gap:4px;min-width:0}
+.fld label{font-size:13px;font-weight:600}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.checks label{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:14px;font-weight:500;cursor:pointer}
+.consent{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted)}
+.err{color:var(--corozo);font-size:14px;font-weight:600;margin:0}
+footer{padding-block:24px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:no-preference){.card{transition:transform .15s}.card:hover{transform:translateY(-2px)}}
+</style>
+
+<div class="demo" id="demoBar"><div class="wrap"><b>Versión MVP de prueba.</b> Los perfiles marcados como EJEMPLO no son técnicos reales. Reemplázalos por técnicos que hayan autorizado publicar sus datos.</div></div>
+
+<header class="top"><div class="wrap">
+  <div class="brand" aria-label="OficiosSincelejo">
+    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M9 21l7-11 7 11" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="23" r="2" fill="#fff"/></svg>
+    <span>Oficios<b>Sincelejo</b></span>
+  </div>
+  <div class="hero">
+    <h1>Encuentra un técnico de Sincelejo en minutos</h1>
+    <p>Mira sus trabajos reales, revisa la tarifa base y escríbele directo por WhatsApp. Sin intermediarios y sin comisión.</p>
+    <div class="pills"><span class="pill">0 % de comisión</span><span class="pill">Cédula verificada</span><span class="pill">Contacto directo</span></div>
+  </div>
+</div></header>
+
+<section class="search" aria-label="Buscar técnicos"><div class="wrap">
+  <div class="oficios" id="oficios" role="group" aria-label="Oficio"></div>
+  <div class="row">
+    <label for="barrio">Barrio</label>
+    <select id="barrio"><option value="">Todos los barrios</option></select>
+    <label for="orden">Ordenar</label>
+    <select id="orden"><option value="rating">Mejor calificados</option><option value="resenas">Más reseñas</option><option value="precio">Menor tarifa base</option></select>
+    <span class="count" id="count"></span>
+  </div>
+</div></section>
+
+<main><div class="wrap"><div class="grid" id="grid"></div></div></main>
+
+<section class="reg" id="registro"><div class="wrap">
+  <div>
+    <h2>¿Eres técnico? Publica tu perfil gratis</h2>
+    <p class="note" style="font-size:16px;margin-top:10px">Muestra tus trabajos a hogares nuevos de Sincelejo. No cobramos comisión por servicio.</p>
+    <ul>
+      <li>Envías tus datos y fotos de trabajos por WhatsApp.</li>
+      <li>El equipo verifica tu cédula y te visita.</li>
+      <li>Tu perfil queda publicado y los clientes te escriben directo.</li>
+    </ul>
+  </div>
+  <form id="regForm" novalidate>
+    <div class="f2">
+      <div class="fld"><label for="rNombre">Nombre completo</label><input type="text" id="rNombre" autocomplete="name"></div>
+      <div class="fld"><label for="rTel">WhatsApp</label><input type="tel" id="rTel" placeholder="300 123 4567" inputmode="tel"></div>
+    </div>
+    <div class="f2">
+      <div class="fld"><label for="rOficio">Oficio principal</label><select id="rOficio"></select></div>
+      <div class="fld"><label for="rAnios">Años de experiencia</label><input type="number" id="rAnios" min="0" max="60"></div>
+    </div>
+    <div class="fld"><label for="rTarifa">Tarifa de visita o diagnóstico (COP)</label><input type="number" id="rTarifa" min="0" step="1000" placeholder="30000"></div>
+    <div class="fld"><span style="font-size:13px;font-weight:600">Barrios donde trabajas</span><div class="checks" id="rBarrios"></div></div>
+    <label class="consent"><input type="checkbox" id="rConsent"> Autorizo a OficiosSincelejo a publicar mi nombre, oficio, barrios, fotos de trabajos y número de WhatsApp, según la Ley 1581 de 2012 de protección de datos personales.</label>
+    <p class="err" id="rErr" hidden></p>
+    <button class="btn btn-wa" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.4-.7-2.8-1.1-4.6-4-4.8-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.5c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>Enviar mis datos por WhatsApp</button>
+    <div id="rOut" hidden class="sec">
+      <h3>Mensaje listo</h3>
+      <div class="msg" id="rMsg"></div>
+      <p class="note" id="rNote"></p>
+      <button class="btn btn-ghost" type="button" id="rCopy">Copiar mensaje</button>
+    </div>
+  </form>
+</div></section>
+
+<footer><div class="wrap">OficiosSincelejo · Proyecto del curso Espíritu Emprendedor, Ingeniería de Sistemas, CECAR · Sincelejo, Sucre · 2026 · <a href="../index.html">Inicio del proyecto</a> · <a href="../app/index.html">Versión funcional</a></div></footer>
+
+<div class="ov" id="ov" hidden><div class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="pName"></div></div>
+
+<script>
+/* ===================== CONFIGURACIÓN DEL EQUIPO =====================
+   NUMERO_EQUIPO: WhatsApp del equipo que recibe registros y reseñas.
+   Formato internacional sin "+" ni espacios. Ejemplo: "573001234567".
+   Déjalo vacío mientras no tengan un número: la página mostrará el mensaje para copiarlo. */
+const NUMERO_EQUIPO = "";
+
+const OFICIOS = {
+  plomeria:{n:"Plomería", c:"#0B6E99", i:'<path d="M4 10h8a3 3 0 0 1 3 3v7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M4 7v6M18 20h-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M19 5c0 1.5-1.2 3-1.2 3S16.6 6.5 16.6 5a1.2 1.2 0 0 1 2.4 0Z" fill="currentColor"/>'},
+  electricidad:{n:"Electricidad", c:"#C27A00", i:'<path d="M13 2 5 14h6l-1 8 8-12h-6l1-8Z" fill="currentColor"/>'},
+  aire:{n:"Aire acondicionado", c:"#2E7D8C", i:'<rect x="3" y="5" width="18" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 16v3M12 16v4M17 16v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'},
+  pintura:{n:"Pintura", c:"#9C3D6B", i:'<rect x="4" y="3" width="14" height="6" rx="1.5" fill="currentColor"/><path d="M18 6h2v5h-8v3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="10.5" y="14" width="3" height="7" rx="1" fill="currentColor"/>'},
+  carpinteria:{n:"Carpintería", c:"#7A5230", i:'<path d="M3 17 14 6l4 4L7 21H3v-4Z" fill="currentColor"/><path d="m15 5 2-2 4 4-2 2" fill="none" stroke="currentColor" stroke-width="2"/>'}
+};
+const BARRIOS = ["Centro","Boston","El Bosque","La Ford","Las Américas","Majagual","Mochila","San Carlos","Uribe Uribe","Venecia","Villa Orieta","La Selva"];
+
+/* ===================== DIRECTORIO =====================
+   Cada técnico real necesita su autorización firmada (Ley 1581 de 2012).
+   Campos: id, nombre, oficio (clave de OFICIOS), barrios, whatsapp (57XXXXXXXXXX),
+   anios, tarifa (visita/diagnóstico COP), verificado, trabajos (descripciones o rutas de fotos),
+   resenas [{autor, estrellas, texto, fecha}], ejemplo (true = perfil de demostración, sin número real). */
+const TECNICOS = [
+  {id:"t1",nombre:"Técnico de ejemplo 1",oficio:"plomeria",barrios:["Centro","La Ford","Majagual"],whatsapp:"",anios:12,tarifa:30000,verificado:true,ejemplo:true,
+   trabajos:["Cambio de tubería de lavaplatos","Arreglo de fuga en baño","Instalación de tanque elevado"],
+   resenas:[{autor:"Reseña de ejemplo",estrellas:5,texto:"Llegó el mismo día y explicó el daño antes de cobrar.",fecha:"2026-09"},{autor:"Reseña de ejemplo",estrellas:4,texto:"Buen trabajo, se demoró un poco en conseguir el repuesto.",fecha:"2026-08"}]},
+  {id:"t2",nombre:"Técnica de ejemplo 2",oficio:"electricidad",barrios:["Boston","Venecia","El Bosque"],whatsapp:"",anios:8,tarifa:35000,verificado:true,ejemplo:true,
+   trabajos:["Cambio de tablero de breakers","Instalación de tomas 220 V","Reparación de corto en cocina"],
+   resenas:[{autor:"Reseña de ejemplo",estrellas:5,texto:"Revisó toda la instalación y dejó todo marcado.",fecha:"2026-09"}]},
+  {id:"t3",nombre:"Técnico de ejemplo 3",oficio:"aire",barrios:["Las Américas","Villa Orieta","La Selva","Centro"],whatsapp:"",anios:6,tarifa:40000,verificado:true,ejemplo:true,
+   trabajos:["Mantenimiento de minisplit 12.000 BTU","Carga de gas refrigerante","Instalación de aire nuevo"],
+   resenas:[{autor:"Reseña de ejemplo",estrellas:5,texto:"Dejó el aire limpio y enfriando como nuevo.",fecha:"2026-10"},{autor:"Reseña de ejemplo",estrellas:5,texto:"Puntual y con precio claro desde el inicio.",fecha:"2026-09"},{autor:"Reseña de ejemplo",estrellas:4,texto:"Bien, aunque pidió pago adelantado del repuesto.",fecha:"2026-07"}]},
+  {id:"t4",nombre:"Técnico de ejemplo 4",oficio:"pintura",barrios:["Mochila","San Carlos","Uribe Uribe"],whatsapp:"",anios:15,tarifa:25000,verificado:false,ejemplo:true,
+   trabajos:["Pintura de fachada","Estuco y pintura de sala","Impermeabilización de terraza"],
+   resenas:[{autor:"Reseña de ejemplo",estrellas:4,texto:"Acabado limpio, cubrió bien los muebles.",fecha:"2026-08"}]},
+  {id:"t5",nombre:"Técnico de ejemplo 5",oficio:"carpinteria",barrios:["Centro","Boston","La Ford"],whatsapp:"",anios:20,tarifa:30000,verificado:true,ejemplo:true,
+   trabajos:["Arreglo de puerta descolgada","Closet en melamina","Cambio de chapa y bisagras"],
+   resenas:[]},
+  {id:"t6",nombre:"Técnico de ejemplo 6",oficio:"aire",barrios:["Majagual","El Bosque","Venecia"],whatsapp:"",anios:4,tarifa:35000,verificado:true,ejemplo:true,
+   trabajos:["Mantenimiento de aire de ventana","Cambio de capacitor","Limpieza de evaporador"],
+   resenas:[{autor:"Reseña de ejemplo",estrellas:4,texto:"Resolvió el ruido del aire en una visita.",fecha:"2026-09"}]}
+];
+
+/* ===================== LÓGICA ===================== */
+const $ = s => document.querySelector(s);
+const cop = n => new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(n);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const icon = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${OFICIOS[k].i}</svg>`;
+const avg = t => t.resenas.length ? t.resenas.reduce((a,r)=>a+r.estrellas,0)/t.resenas.length : 0;
+const stars = t => t.resenas.length ? `<span class="stars">★ ${avg(t).toFixed(1).replace(".",",")}</span> <span class="meta">(${t.resenas.length} ${t.resenas.length===1?"reseña":"reseñas"})</span>` : `<span class="meta">Sin reseñas todavía</span>`;
+const waUrl = (num,msg) => `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+const msgCliente = (t,barrio) => `Hola, te contacto desde OficiosSincelejo. Necesito un servicio de ${OFICIOS[t.oficio].n.toLowerCase()}${barrio?` en el barrio ${barrio}`:""}. ¿Tienes disponibilidad?`;
+
+let state = {oficio:"", barrio:"", orden:"rating"};
+try{ const s = JSON.parse(localStorage.getItem("os-filtros")||"null"); if(s) state = {...state, ...s}; }catch(e){}
+const save = () => { try{ localStorage.setItem("os-filtros", JSON.stringify(state)); }catch(e){} };
+
+function thumbs(t, cls="thumb"){
+  const col = OFICIOS[t.oficio].c;
+  return t.trabajos.slice(0,3).map((w,i)=>{
+    if(/\.(jpe?g|png|webp)$/i.test(w)) return `<img class="${cls}" src="${esc(w)}" alt="Trabajo de ${esc(t.nombre)}" style="object-fit:cover;width:100%">`;
+    return `<div class="${cls}" style="background:linear-gradient(${135+i*40}deg, ${col}, ${col}cc)">${esc(w)}</div>`;
+  }).join("");
+}
+
+function renderFilters(){
+  const all = [["", "Todos", ""], ...Object.entries(OFICIOS).map(([k,v])=>[k,v.n,icon(k)])];
+  $("#oficios").innerHTML = all.map(([k,n,ic])=>`<button class="of" type="button" data-k="${k}" aria-pressed="${state.oficio===k}">${ic}${n}</button>`).join("");
+  $("#barrio").innerHTML = `<option value="">Todos los barrios</option>` + BARRIOS.map(b=>`<option ${state.barrio===b?"selected":""}>${b}</option>`).join("");
+  $("#orden").value = state.orden;
+}
+
+function list(){
+  let r = TECNICOS.filter(t => (!state.oficio || t.oficio===state.oficio) && (!state.barrio || t.barrios.includes(state.barrio)));
+  const s = {rating:(a,b)=>avg(b)-avg(a)||b.resenas.length-a.resenas.length, resenas:(a,b)=>b.resenas.length-a.resenas.length, precio:(a,b)=>a.tarifa-b.tarifa}[state.orden];
+  return r.sort(s);
+}
+
+function render(){
+  const r = list();
+  $("#count").textContent = `${r.length} ${r.length===1?"técnico":"técnicos"}`;
+  if(!r.length){
+    $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1"><b>No hay técnicos de ${state.oficio?OFICIOS[state.oficio].n.toLowerCase():"ese oficio"} en ${esc(state.barrio||"ese barrio")} todavía.</b><br>Prueba con otro barrio o con todos los barrios.</div>`;
+    return;
+  }
+  $("#grid").innerHTML = r.map(t=>`
+    <article class="card">
+      <div class="thumbs">${thumbs(t)}</div>
+      <div class="cbody">
+        ${t.ejemplo?'<span class="tag-demo">Ejemplo</span>':""}
+        <div class="name"><h3>${esc(t.nombre)}</h3>${t.verificado?'<span class="verif">✓ Cédula verificada</span>':""}</div>
+        <div class="meta">${OFICIOS[t.oficio].n} · ${t.anios} años de experiencia</div>
+        <div>${stars(t)}</div>
+        <div class="price">Visita desde ${cop(t.tarifa)} <small>tarifa base</small></div>
+        <div class="meta">${t.barrios.map(esc).join(", ")}</div>
+        <div class="actions">
+          <button class="btn btn-ghost" type="button" data-ver="${t.id}">Ver perfil</button>
+          <button class="btn btn-wa" type="button" data-wa="${t.id}">${waIcon}WhatsApp</button>
+        </div>
+      </div>
+    </article>`).join("");
+}
+const waIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.4-.7-2.8-1.1-4.6-4-4.8-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.5c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>';
+
+let lastFocus = null;
+function openProfile(id, focusContact=false){
+  const t = TECNICOS.find(x=>x.id===id); if(!t) return;
+  const msg = msgCliente(t, state.barrio);
+  const contacto = t.ejemplo || !t.whatsapp
+    ? `<div class="msg">${esc(msg)}</div><p class="note">Perfil de ejemplo sin número real. Con un técnico real, este botón abre WhatsApp con el mensaje de arriba.</p><button class="btn btn-wa" type="button" disabled style="opacity:.55">${waIcon}Escribir por WhatsApp</button>`
+    : `<div class="msg">${esc(msg)}</div><a class="btn btn-wa" href="${waUrl(t.whatsapp,msg)}" target="_blank" rel="noopener">${waIcon}Escribir por WhatsApp</a><p class="note">Número: <b>+${esc(t.whatsapp)}</b>. Si el botón no abre WhatsApp, guarda el número y escríbele.</p>`;
+  const resenaMsg = `Hola equipo OficiosSincelejo. Quiero dejar una reseña de ${t.nombre} (${OFICIOS[t.oficio].n}). Calificación de 1 a 5: __. Comentario: __`;
+  $("#panel").innerHTML = `
+    <div class="ph"><div>${t.ejemplo?'<span class="tag-demo">Ejemplo</span>':""}<h2 id="pName">${esc(t.nombre)}</h2><div class="meta">${OFICIOS[t.oficio].n}${t.verificado?' · <span class="verif">✓ Cédula verificada</span>':""}</div></div><button class="close" type="button" aria-label="Cerrar" id="pClose">×</button></div>
+    <div class="facts">
+      <div class="fact"><b>${t.anios}</b><span>años de experiencia</span></div>
+      <div class="fact"><b>${t.resenas.length?avg(t).toFixed(1).replace(".",","):"–"}</b><span>calificación</span></div>
+      <div class="fact"><b>${cop(t.tarifa)}</b><span>visita o diagnóstico</span></div>
+    </div>
+    <div class="sec"><h3>Trabajos realizados</h3><div class="gal">${thumbs(t)}</div></div>
+    <div class="sec"><h3>Barrios donde trabaja</h3><div class="meta">${t.barrios.map(esc).join(", ")}</div></div>
+    <div class="sec" id="pContact"><h3>Contactar</h3><div style="display:grid;gap:10px">${contacto}</div></div>
+    <div class="sec"><h3>Reseñas</h3><div style="display:grid;gap:8px">${t.resenas.length? t.resenas.map(r=>`<div class="rev"><span class="stars">${"★".repeat(r.estrellas)}${"☆".repeat(5-r.estrellas)}</span><p>${esc(r.texto)}</p><span class="who">${esc(r.autor)} · ${esc(r.fecha)}</span></div>`).join("") : '<p class="note">Este técnico aún no tiene reseñas.</p>'}
+      ${NUMERO_EQUIPO ? `<a class="btn btn-ghost" href="${waUrl(NUMERO_EQUIPO,resenaMsg)}" target="_blank" rel="noopener">Dejar una reseña</a>` : `<p class="note">Para dejar una reseña, escribe al equipo con este mensaje: «${esc(resenaMsg)}»</p>`}</div></div>
+    <p class="note">La tarifa base es una referencia. El precio final lo acuerdas directo con el técnico según el trabajo.</p>`;
+  lastFocus = document.activeElement;
+  $("#ov").hidden = false;
+  document.body.style.overflow = "hidden";
+  $("#pClose").focus();
+  if(focusContact) $("#pContact").scrollIntoView({block:"start"});
+}
+function closeProfile(){ $("#ov").hidden = true; document.body.style.overflow = ""; lastFocus && lastFocus.focus(); }
+
+$("#oficios").addEventListener("click", e=>{ const b=e.target.closest(".of"); if(!b) return; state.oficio=b.dataset.k; save(); renderFilters(); render(); });
+$("#barrio").addEventListener("change", e=>{ state.barrio=e.target.value; save(); render(); });
+$("#orden").addEventListener("change", e=>{ state.orden=e.target.value; save(); render(); });
+$("#grid").addEventListener("click", e=>{
+  const v=e.target.closest("[data-ver]"); if(v) return openProfile(v.dataset.ver);
+  const w=e.target.closest("[data-wa]"); if(w){
+    const t=TECNICOS.find(x=>x.id===w.dataset.wa);
+    if(t && !t.ejemplo && t.whatsapp){ const a=document.createElement("a"); a.href=waUrl(t.whatsapp,msgCliente(t,state.barrio)); a.target="_blank"; a.rel="noopener"; a.click(); }
+    else openProfile(w.dataset.wa, true);
+  }
+});
+$("#ov").addEventListener("click", e=>{ if(e.target.id==="ov" || e.target.id==="pClose") closeProfile(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("#ov").hidden) closeProfile(); });
+
+/* ----- Registro de técnicos ----- */
+$("#rOficio").innerHTML = Object.entries(OFICIOS).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join("");
+$("#rBarrios").innerHTML = BARRIOS.map((b,i)=>`<label><input type="checkbox" id="rb${i}" value="${b}"> ${b}</label>`).join("");
+$("#regForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const nombre=$("#rNombre").value.trim(), tel=$("#rTel").value.replace(/\D/g,""), anios=$("#rAnios").value, tarifa=$("#rTarifa").value;
+  const barrios=[...document.querySelectorAll("#rBarrios input:checked")].map(x=>x.value);
+  const err=[];
+  if(nombre.length<5) err.push("escribe tu nombre completo");
+  if(!/^3\d{9}$/.test(tel)) err.push("escribe un celular de 10 dígitos que empiece por 3");
+  if(!barrios.length) err.push("marca al menos un barrio");
+  if(!$("#rConsent").checked) err.push("acepta la autorización de datos");
+  if(err.length){ $("#rErr").textContent = "Falta: " + err.join(", ") + "."; $("#rErr").hidden=false; $("#rOut").hidden=true; return; }
+  $("#rErr").hidden = true;
+  const msg = `Hola equipo OficiosSincelejo. Quiero publicar mi perfil.\nNombre: ${nombre}\nWhatsApp: ${tel}\nOficio: ${OFICIOS[$("#rOficio").value].n}\nAños de experiencia: ${anios||"sin dato"}\nTarifa de visita: ${tarifa?cop(+tarifa):"sin dato"}\nBarrios: ${barrios.join(", ")}\nAutorizo la publicación de mis datos (Ley 1581 de 2012).\nEn el siguiente mensaje envío fotos de mis trabajos.`;
+  $("#rMsg").textContent = msg; $("#rOut").hidden = false;
+  if(NUMERO_EQUIPO){
+    $("#rNote").textContent = "Se abrió WhatsApp con este mensaje. Si no se abrió, cópialo y envíalo al equipo.";
+    const a=document.createElement("a"); a.href=waUrl(NUMERO_EQUIPO,msg); a.target="_blank"; a.rel="noopener"; a.click();
+  } else {
+    $("#rNote").textContent = "El equipo todavía no configuró su número de WhatsApp. Copia este mensaje y envíalo por el canal que te indiquen.";
+  }
+});
+$("#rCopy").addEventListener("click", ()=>{
+  const t=$("#rMsg").textContent;
+  navigator.clipboard?.writeText(t).then(()=>{$("#rCopy").textContent="Copiado";},()=>selectMsg()).catch?.(()=>selectMsg());
+  if(!navigator.clipboard) selectMsg();
+});
+function selectMsg(){ const r=document.createRange(); r.selectNodeContents($("#rMsg")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $("#rCopy").textContent="Texto seleccionado, cópialo"; }
+
+if(!TECNICOS.some(t=>t.ejemplo)) $("#demoBar").hidden = true;
+renderFilters(); render();
+</script>

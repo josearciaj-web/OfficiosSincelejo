@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OficiosSincelejo</title>
+<meta name="description" content="Directorio digital de técnicos de oficios varios en Sincelejo. Proyecto de Espíritu Emprendedor, Ingeniería de Sistemas, CECAR.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="app/css/styles.css">
+<style>
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:26px}
+  .v{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:grid;gap:10px;align-content:start}
+  .v h2{font-size:24px}
+  .v ul{margin:0;padding-left:20px;color:var(--muted);display:grid;gap:4px}
+  .tag{justify-self:start;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:var(--sucre-soft);color:var(--sucre)}
+  .team{margin-top:28px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap topbar">
+  <span class="brand"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M9 21l7-11 7 11" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="23" r="2" fill="#fff"/></svg><span>Oficios<b>Sincelejo</b></span></span>
+</div></header>
+<main><div class="wrap">
+  <div class="hero" style="padding-top:10px">
+    <h1>Directorio digital de técnicos de oficios varios en Sincelejo</h1>
+    <p>Los hogares encuentran plomeros, electricistas y técnicos de aire acondicionado, ven sus trabajos y les escriben directo por WhatsApp. Sin comisión.</p>
+  </div>
+  <div class="cards">
+    <section class="v">
+      <span class="tag">Versión 1 · MVP</span>
+      <h2>Producto mínimo viable</h2>
+      <p class="note" style="font-size:15px">Directorio estático para validar las hipótesis H1 a H4 del Lean Canvas.</p>
+      <ul><li>Búsqueda por oficio y barrio</li><li>Perfiles con tarifa base y reseñas</li><li>Botón directo a WhatsApp</li><li>Registro de técnicos por mensaje</li></ul>
+      <a class="btn btn-ghost" href="mvp/index.html">Abrir el MVP</a>
+    </section>
+    <section class="v">
+      <span class="tag">Versión 2 · Funcional</span>
+      <h2>Plataforma funcional</h2>
+      <p class="note" style="font-size:15px">Aplicación con base de datos: los técnicos se registran solos y el equipo aprueba los perfiles.</p>
+      <ul><li>Registro de técnicos con subida de fotos</li><li>Reseñas publicadas por los hogares</li><li>Panel de administración y verificación</li><li>Métricas del MVP en tiempo real</li></ul>
+      <a class="btn btn-pri" href="app/index.html">Abrir la plataforma</a>
+    </section>
+  </div>
+  <p class="team">Proyecto del curso Espíritu Emprendedor · Ingeniería de Sistemas · Corporación Universitaria del Caribe, CECAR · José José Arcia Jaramillo, Santiago Bustamante y Steban Castillo · Docente: Germán Nader Abad · 2026</p>
+</div></main>
+</body>
+</html>

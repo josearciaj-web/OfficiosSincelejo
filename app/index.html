@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OficiosSincelejo · Encuentra un técnico</title>
+<meta name="description" content="Directorio de técnicos de oficios varios en Sincelejo. Contacto directo por WhatsApp y sin comisión.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="wrap hero">
+  <h1>Encuentra un técnico de Sincelejo en minutos</h1>
+  <p>Mira sus trabajos reales, revisa la tarifa base y escríbele directo por WhatsApp. Sin intermediarios y sin comisión.</p>
+  <div class="pills"><span class="pill">0 % de comisión</span><span class="pill">Perfiles revisados por el equipo</span><span class="pill">Contacto directo</span></div>
+</div>
+
+<section class="search" aria-label="Buscar técnicos"><div class="wrap">
+  <div class="oficios" id="oficios" role="group" aria-label="Oficio"></div>
+  <div class="row">
+    <label for="q" class="sr">Nombre</label>
+    <input type="search" id="q" placeholder="Buscar por nombre o trabajo">
+    <label for="barrio">Barrio</label>
+    <select id="barrio"></select>
+    <label for="orden">Ordenar</label>
+    <select id="orden"><option value="rating">Mejor calificados</option><option value="resenas">Más reseñas</option><option value="precio">Menor tarifa base</option><option value="exp">Más experiencia</option></select>
+    <span class="count" id="count"></span>
+  </div>
+</div></section>
+
+<main><div class="wrap">
+  <div class="grid" id="grid"><p class="loading">Cargando técnicos…</p></div>
+  <div class="box" style="margin-top:28px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between">
+    <div><h2 style="font-size:22px">¿Eres técnico en Sincelejo?</h2><p class="note" style="font-size:15px">Publica tu perfil gratis con fotos de tus trabajos. No cobramos comisión.</p></div>
+    <a class="btn btn-pri" href="registro.html">Registrar mi perfil</a>
+  </div>
+</div></main>
+
+<div class="ov" id="ov" hidden><div class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="pName"></div></div>
+
+<script src="js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/directorio.js"></script>
+</body>
+</html>

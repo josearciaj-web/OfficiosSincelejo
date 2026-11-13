@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OficiosSincelejo · Administración</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<main><div class="wrap">
+  <section id="login" hidden style="max-width:420px;margin:20px auto">
+    <div class="box">
+      <h1 style="font-size:28px">Panel del equipo</h1>
+      <p class="note" style="margin:6px 0 14px" id="loginHint">Ingresa con la cuenta de administrador creada en Supabase.</p>
+      <form id="loginForm" novalidate>
+        <div class="fld"><label for="lEmail">Correo</label><input type="email" id="lEmail" autocomplete="username"></div>
+        <div class="fld"><label for="lPass">Contraseña</label><input type="password" id="lPass" autocomplete="current-password"></div>
+        <p class="err" id="lErr" hidden></p>
+        <button class="btn btn-pri" type="submit">Entrar</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="panelAdm" hidden>
+    <div class="row" style="justify-content:space-between;margin-bottom:14px">
+      <h1 style="font-size:30px">Administración</h1>
+      <div class="row"><span class="meta" id="who"></span><button class="btn btn-ghost sm" type="button" id="logout">Salir</button></div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="pend" aria-selected="true">Por revisar <span class="badge" id="bPend">0</span></button>
+      <button class="tab" role="tab" data-tab="tec" aria-selected="false">Técnicos</button>
+      <button class="tab" role="tab" data-tab="res" aria-selected="false">Reseñas</button>
+      <button class="tab" role="tab" data-tab="met" aria-selected="false">Métricas del MVP</button>
+    </div>
+    <div id="view"><p class="loading">Cargando…</p></div>
+  </section>
+</div></main>
+
+<script src="js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
