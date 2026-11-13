@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OficiosSincelejo · Planes</title>
+<meta name="description" content="Planes para técnicos y publicidad para ferreterías en OficiosSincelejo. Para los hogares es gratis.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="wrap hero">
+  <h1>Planes de OficiosSincelejo</h1>
+  <p>Para los hogares la plataforma es gratis siempre. No cobramos comisión por ningún servicio. Los ingresos vienen del plan destacado para técnicos y de la publicidad de ferreterías.</p>
+</div>
+
+<main><div class="wrap" style="display:grid;gap:30px">
+  <section aria-labelledby="tTec">
+    <h2 id="tTec" style="font-size:24px;margin-bottom:12px">Para técnicos</h2>
+    <div class="plans">
+      <div class="plan">
+        <span class="plan-tag">Gratis</span>
+        <h3>Perfil básico</h3>
+        <div class="price">$ 0 <small>siempre</small></div>
+        <ul>
+          <li>Perfil con hasta 6 fotos de tus trabajos</li>
+          <li>Contacto directo por WhatsApp</li>
+          <li>Reseñas de tus clientes</li>
+          <li>Verificación de cédula por el equipo</li>
+          <li>Sin comisión por servicio</li>
+        </ul>
+        <a class="btn btn-ghost" href="registro.html">Registrar mi perfil</a>
+      </div>
+      <div class="plan featured">
+        <span class="plan-tag">Recomendado</span>
+        <h3>Plan destacado</h3>
+        <div class="price"><span id="pDest">$ 10.000</span> <small>al mes</small></div>
+        <ul>
+          <li>Todo lo del perfil básico</li>
+          <li>Apareces <b>de primero</b> en las búsquedas de tu oficio</li>
+          <li>Etiqueta <span class="badge-dest" style="vertical-align:middle">★ Destacado</span> en tu perfil</li>
+          <li>Tarjeta resaltada en el directorio</li>
+        </ul>
+        <button class="btn btn-pri" type="button" data-plan="destacado">Quiero ser destacado</button>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="tFer">
+    <h2 id="tFer" style="font-size:24px;margin-bottom:12px">Para ferreterías y distribuidores</h2>
+    <div class="plans">
+      <div class="plan featured">
+        <span class="plan-tag">Publicidad</span>
+        <h3>Anuncio en el directorio</h3>
+        <div class="price"><span id="pPub">$ 50.000</span> <small>al mes</small></div>
+        <ul>
+          <li>Tu anuncio aparece entre los resultados de búsqueda</li>
+          <li>Logo o foto de tu negocio y un mensaje corto</li>
+          <li>Botón directo a tu WhatsApp</li>
+          <li>Llegas a técnicos y hogares que compran materiales</li>
+        </ul>
+        <button class="btn btn-pri" type="button" data-plan="publicidad">Quiero anunciar mi negocio</button>
+      </div>
+      <div class="plan">
+        <h3>¿Cómo se paga?</h3>
+        <ol class="steps" style="color:var(--ink)">
+          <li>Escríbele al equipo con el botón del plan que te interesa.</li>
+          <li>Paga por Nequi, Daviplata o transferencia.</li>
+          <li>Envía el comprobante por WhatsApp.</li>
+          <li>El equipo activa tu plan en menos de 24 horas.</li>
+        </ol>
+        <p class="note" style="margin-top:12px">Los planes se pagan por mes y no tienen permanencia mínima.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="box" id="contacto" hidden>
+    <h3 style="font-size:18px">Mensaje para el equipo</h3>
+    <div class="msg" id="cMsg" style="margin-top:10px"></div>
+    <p class="note" id="cNote" style="margin-top:10px"></p>
+    <div class="row" style="margin-top:10px"><a class="btn btn-wa" id="cWa" href="#" target="_blank" rel="noopener" hidden>Enviar por WhatsApp</a><button class="btn btn-ghost" type="button" id="cCopy">Copiar mensaje</button></div>
+  </div>
+</div></main>
+
+<script src="js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script>
+(function () {
+  const { PRECIOS, CFG } = window.OS;
+  const { $, cop, waUrl, WA_ICON, header, toast } = window.UI;
+  header("pla");
+  $("#pDest").textContent = cop(PRECIOS.destacado);
+  $("#pPub").textContent = cop(PRECIOS.publicidad);
+  const MSG = {
+    destacado: `Hola equipo OficiosSincelejo. Quiero activar el plan destacado (${cop(PRECIOS.destacado)} al mes).\nNombre:\nOficio:\nCelular registrado en la plataforma:`,
+    publicidad: `Hola equipo OficiosSincelejo. Quiero anunciar mi negocio en el directorio (${cop(PRECIOS.publicidad)} al mes).\nNombre del negocio:\nMensaje del anuncio:\nWhatsApp del negocio:`,
+  };
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-plan]"); if (!b) return;
+    const msg = MSG[b.dataset.plan];
+    $("#cMsg").textContent = msg; $("#contacto").hidden = false;
+    const num = String(CFG.WHATSAPP_EQUIPO || "").replace(/\D/g, "");
+    if (num) {
+      $("#cWa").hidden = false; $("#cWa").href = waUrl(num, msg); $("#cWa").innerHTML = WA_ICON + "Enviar por WhatsApp";
+      $("#cNote").textContent = "Toca el botón para enviar este mensaje al equipo por WhatsApp.";
+    } else {
+      $("#cWa").hidden = true;
+      $("#cNote").textContent = "Copia este mensaje y envíalo al WhatsApp del equipo.";
+    }
+    $("#contacto").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+  $("#cCopy").addEventListener("click", () => {
+    const t = $("#cMsg").textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("Mensaje copiado"), () => {
+      const r = document.createRange(); r.selectNodeContents($("#cMsg")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast("Texto seleccionado, cópialo con Ctrl + C");
+    });
+  });
+})();
+</script>
+</body>
+</html>

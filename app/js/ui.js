@@ -44,7 +44,7 @@
   /* Encabezado común con navegación. */
   function header(active) {
     const s = window.OS.store;
-    const links = [["index.html", "Buscar técnico", "dir"], ["registro.html", "Soy técnico", "reg"], ["admin.html", "Administración", "adm"]];
+    const links = [["index.html", "Buscar técnico", "dir"], ["registro.html", "Soy técnico", "reg"], ["planes.html", "Planes", "pla"], ["admin.html", "Administración", "adm"]];
     const demo = s.mode === "demo"
       ? `<div class="banner demo"><div class="wrap"><b>Modo demostración.</b> Los datos se guardan solo en este navegador. Los técnicos son ficticios. Para guardar datos reales configura Supabase en <code>app/js/config.js</code>.</div></div>` : "";
     const err = s.configError ? `<div class="banner err"><div class="wrap">${esc(s.configError)}</div></div>` : "";
@@ -60,5 +60,15 @@
   let tt;
   function toast(msg, bad) { const t = $("#toast"); t.textContent = msg; t.classList.toggle("bad", !!bad); t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 3500); }
 
-  window.UI = { $, $$, esc, safeFotos, cop, avg, dec, fecha, waUrl, normTel, icon, COLORS, WA_ICON, thumbs, starsLine, header, toast };
+  /* Suma meses (30 días cada uno) a partir de una fecha AAAA-MM-DD o de hoy. */
+  const sumarMeses = (desde, meses) => { const d = new Date(desde + "T12:00:00"); d.setDate(d.getDate() + 30 * meses); return d.toISOString().slice(0, 10); };
+  const fechaCorta = ymd => new Date(ymd + "T12:00:00").toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
+  /* Banner de publicidad de una ferretería o distribuidor. */
+  function adCard(a) {
+    const img = a.imagen && /^(https:\/\/|data:image\/(jpeg|png|webp);base64,)/i.test(a.imagen) ? `<img class="ad-img" src="${esc(a.imagen)}" alt="${esc(a.negocio)}" loading="lazy">` : "";
+    const wa = a.whatsapp ? `<a class="btn btn-ghost sm" data-ad="${esc(a.id)}" href="${waUrl(a.whatsapp, "Hola, vi su anuncio en OficiosSincelejo. Quiero más información.")}" target="_blank" rel="noopener">${WA_ICON}Escribir</a>` : "";
+    return `<aside class="ad" aria-label="Publicidad">${img}<div class="ad-body"><span class="ad-tag">Publicidad</span><b class="ad-name">${esc(a.negocio)}</b><p class="ad-msg">${esc(a.mensaje)}</p>${wa}</div></aside>`;
+  }
+
+  window.UI = { sumarMeses, fechaCorta, adCard, $, $$, esc, safeFotos, cop, avg, dec, fecha, waUrl, normTel, icon, COLORS, WA_ICON, thumbs, starsLine, header, toast };
 })();

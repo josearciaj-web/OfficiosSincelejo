@@ -1,10 +1,10 @@
 /* Página pública: directorio, perfil, contacto por WhatsApp y reseñas. */
 (function () {
-  const { store, OFICIOS, BARRIOS } = window.OS;
-  const { $, esc, safeFotos, cop, avg, dec, fecha, waUrl, icon, WA_ICON, thumbs, starsLine, header, toast } = window.UI;
+  const { store, OFICIOS, BARRIOS, esDestacado } = window.OS;
+  const { adCard, $, esc, safeFotos, cop, avg, dec, fecha, waUrl, icon, WA_ICON, thumbs, starsLine, header, toast } = window.UI;
   header("dir");
 
-  let TEC = [];
+  let TEC = [], ANUN = [];
   let state = { oficio: "", barrio: "", orden: "rating", q: "" };
   try { const s = JSON.parse(localStorage.getItem("os-filtros") || "null"); if (s) state = { ...state, ...s, q: "" }; } catch (e) {}
   const save = () => { try { localStorage.setItem("os-filtros", JSON.stringify({ oficio: state.oficio, barrio: state.barrio, orden: state.orden })); } catch (e) {} };
@@ -29,7 +29,8 @@
       precio: (a, b) => (a.tarifa || 0) - (b.tarifa || 0),
       exp: (a, b) => (b.anios || 0) - (a.anios || 0),
     };
-    return r.sort(sorts[state.orden] || sorts.rating);
+    // Los técnicos con plan destacado vigente salen primero; dentro de cada grupo se respeta el orden elegido.
+    return r.sort(sorts[state.orden] || sorts.rating).sort((a, b) => esDestacado(b) - esDestacado(a));
   }
 
   function render() {
@@ -37,10 +38,11 @@
     $("#count").textContent = `${r.length} ${r.length === 1 ? "técnico" : "técnicos"}`;
     if (!TEC.length) { $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1"><b>Todavía no hay técnicos publicados.</b><br>Cuando el equipo apruebe los primeros perfiles aparecerán aquí. <a href="registro.html">Registra el tuyo</a>.</div>`; return; }
     if (!r.length) { $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1"><b>No hay técnicos con esos filtros.</b><br>Prueba con otro barrio o con todos los oficios.</div>`; return; }
-    $("#grid").innerHTML = r.map(t => `
-      <article class="card">
+    const cards = r.map(t => `
+      <article class="card${esDestacado(t) ? " dest" : ""}">
         <div class="thumbs">${thumbs(t)}</div>
         <div class="cbody">
+          ${esDestacado(t) ? '<span class="badge-dest">★ Destacado</span>' : ""}
           <div class="name"><h3>${esc(t.nombre)}</h3>${t.verificado ? '<span class="verif">✓ Cédula verificada</span>' : ""}</div>
           <div class="meta">${esc(OFICIOS[t.oficio] || t.oficio)} · ${t.anios || 0} años de experiencia</div>
           <div>${starsLine(t.resenas)}</div>
@@ -51,7 +53,13 @@
             <a class="btn btn-wa" data-wa="${esc(t.id)}" href="${waUrl(t.whatsapp, msgCliente(t))}" target="_blank" rel="noopener">${WA_ICON}WhatsApp</a>
           </div>
         </div>
-      </article>`).join("");
+      </article>`);
+    // Un anuncio después del 3.er técnico y luego cada 6
+    if (ANUN.length) {
+      if (cards.length < 3) cards.push(adCard(ANUN[0]));
+      else for (let pos = 3, k = 0; pos <= cards.length && k < ANUN.length * 3; pos += 4, k++) cards.splice(pos, 0, adCard(ANUN[k % ANUN.length]));
+    }
+    $("#grid").innerHTML = cards.join("");
   }
 
   let lastFocus = null, current = null;
@@ -69,7 +77,7 @@
       ? `<div class="gal">${fotos.map(f => `<a href="${esc(f)}" target="_blank" rel="noopener"><img class="thumb" src="${esc(f)}" alt="Trabajo de ${esc(t.nombre)}" loading="lazy"></a>`).join("")}</div>`
       : `<div class="gal">${thumbs(t)}</div><p class="note">Este técnico aún no ha subido fotos de sus trabajos.</p>`;
     $("#panel").innerHTML = `
-      <div class="ph"><div><h2 id="pName">${esc(t.nombre)}</h2><div class="meta">${esc(OFICIOS[t.oficio] || t.oficio)}${t.verificado ? ' · <span class="verif">✓ Cédula verificada</span>' : ""}</div></div><button class="close" type="button" aria-label="Cerrar" id="pClose">×</button></div>
+      <div class="ph"><div>${esDestacado(t) ? '<span class="badge-dest">★ Destacado</span>' : ""}<h2 id="pName">${esc(t.nombre)}</h2><div class="meta">${esc(OFICIOS[t.oficio] || t.oficio)}${t.verificado ? ' · <span class="verif">✓ Cédula verificada</span>' : ""}</div></div><button class="close" type="button" aria-label="Cerrar" id="pClose">×</button></div>
       <div class="facts">
         <div class="fact"><b>${t.anios || 0}</b><span>años de experiencia</span></div>
         <div class="fact"><b>${resenas.length ? dec(avg(resenas)) : "–"}</b><span>${resenas.length} ${resenas.length === 1 ? "reseña" : "reseñas"}</span></div>
@@ -133,6 +141,7 @@
   $("#q").addEventListener("input", e => { state.q = e.target.value; render(); });
 
   async function load() {
+    try { ANUN = await store.listAnuncios(); } catch (e) { ANUN = []; }
     try { TEC = await store.listTecnicos(); }
     catch (e) { $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1"><b>No se pudieron cargar los técnicos.</b><br>${esc(e.message)}</div>`; return; }
     render();

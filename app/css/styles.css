@@ -171,3 +171,27 @@ footer{padding-block:24px;color:var(--muted);font-size:13px;border-top:1px solid
   .facts{grid-template-columns:repeat(3,minmax(0,1fr))}
   .fact b{font-size:16px}
 }
+
+/* Monetización: destacados, publicidad y planes */
+.card.dest{border:2px solid var(--star);box-shadow:0 4px 18px rgba(201,138,12,.18)}
+.badge-dest{display:inline-block;justify-self:start;font-size:12px;font-weight:800;letter-spacing:.03em;padding:3px 9px;border-radius:999px;background:var(--star);color:#fff}
+.ad{background:var(--surface);border:1.5px dashed var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.ad-img{width:100%;aspect-ratio:16/9;object-fit:cover}
+.ad-body{padding:14px 16px 16px;display:grid;gap:6px;align-content:start}
+.ad-tag{justify-self:start;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 6px}
+.ad-name{font-family:var(--display);font-size:18px}
+.ad-msg{margin:0;color:var(--muted);font-size:14px}
+.ad .btn{justify-self:start}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:10px;align-content:start;min-width:0}
+.plan.featured{border:2px solid var(--sucre)}
+.plan h3{font-size:21px}
+.plan .price{font-family:var(--display);font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+.plan .price small{font-family:var(--body);font-size:14px;font-weight:500;color:var(--muted)}
+.plan ul{margin:0;padding-left:20px;display:grid;gap:5px}
+.plan .btn{justify-self:start}
+.plan-tag{justify-self:start;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:var(--sucre-soft);color:var(--sucre)}
+.payform{grid-column:1/-1;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.payform .fld{flex:1 1 140px}
+.payform select,.payform input{width:100%}
+.dest-line{font-size:13px;font-weight:700;color:var(--star)}

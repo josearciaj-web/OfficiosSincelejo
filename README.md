@@ -19,7 +19,19 @@ Integrantes: José José Arcia Jaramillo, Santiago Bustamante y Steban Castillo.
 
 - `app/index.html`: directorio público, perfil del técnico, botón de WhatsApp y formulario de reseñas.
 - `app/registro.html`: registro del técnico con hasta 6 fotos. El perfil queda **pendiente** hasta que el equipo lo apruebe.
-- `app/admin.html`: panel del equipo. Sirve para aprobar o rechazar perfiles, marcar la cédula verificada, ocultar reseñas y ver las métricas del MVP (aprobación de perfiles y clics a WhatsApp en 14 días).
+- `app/planes.html`: planes para técnicos (perfil gratis y plan destacado de $10.000 al mes) y publicidad para ferreterías ($50.000 al mes).
+- `app/admin.html`: panel del equipo. Sirve para aprobar o rechazar perfiles, marcar la cédula verificada, ocultar reseñas, activar el plan destacado, publicar anuncios, registrar pagos y ver las métricas del MVP y los ingresos.
+
+## Monetización
+
+El hogar usa la plataforma gratis y no se cobra comisión por servicio. Los ingresos vienen de dos fuentes:
+
+1. **Plan destacado** ($10.000 al mes): el técnico aparece de primero en las búsquedas de su oficio, con la etiqueta "Destacado" y la tarjeta resaltada.
+2. **Publicidad** ($50.000 al mes): banners de ferreterías y distribuidores entre los resultados del directorio, con botón a su WhatsApp.
+
+El pago se recibe por Nequi, Daviplata, transferencia o efectivo. Desde el panel, el administrador registra el pago y activa el plan por 1 a 12 meses. La pestaña **Ingresos** muestra lo facturado en el mes, el acumulado y el ingreso mensual recurrente. Los precios se pueden cambiar en `config.js` con `PRECIO_DESTACADO` y `PRECIO_PUBLICIDAD`.
+
+Si ya tenías Supabase configurado antes de esta función, corre una vez `supabase/monetizacion.sql` en el SQL Editor.
 
 ## Modo demostración
 
