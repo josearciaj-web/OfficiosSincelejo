@@ -33,6 +33,17 @@ El pago se recibe por Nequi, Daviplata, transferencia o efectivo. Desde el panel
 
 Si ya tenías Supabase configurado antes de esta función, corre una vez `supabase/monetizacion.sql` en el SQL Editor.
 
+## Validación del piloto
+
+La pestaña **Validación del piloto** del panel calcula las cuatro hipótesis del MVP con datos reales guardados en Supabase:
+
+- **H1** (≥ 50 %): técnicos visitados que aceptan publicar su perfil gratis. Se registra cada visita.
+- **H2** (≥ 60 clics en 14 días): clics al botón de WhatsApp. Se guardan solos.
+- **H3** (≥ 25 %): servicios conseguidos por la plataforma sobre el total de contactos. Se registra la encuesta semanal a cada técnico.
+- **H4** (≥ 30 %): técnicos entrevistados que aceptan pagar el plan destacado. Se registra cada entrevista con el precio ofrecido.
+
+El botón **Exportar evidencias (CSV)** descarga el resumen de las hipótesis, cada registro del piloto y cada clic a WhatsApp. Si ya tenías Supabase configurado, corre una vez `supabase/piloto.sql` en el SQL Editor.
+
 ## Modo demostración
 
 Si `app/js/config.js` no tiene claves, la app arranca en **modo demostración**. Trae 6 técnicos ficticios y todo funciona en el navegador: registro, aprobación, reseñas y métricas. Los datos se guardan solo en ese navegador. La contraseña del panel en este modo es `admin123`.

@@ -102,6 +102,9 @@
       async deleteAnuncio(id) { ok(await sb.from("anuncios").delete().eq("id", id)); },
       async adminPagos() { return ok(await sb.from("pagos").select("*").order("created_at", { ascending: false }).limit(2000)); },
       async registrarPago(p) { ok(await sb.from("pagos").insert(p)); },
+      async adminPiloto() { return ok(await sb.from("piloto").select("*").order("created_at", { ascending: false }).limit(5000)); },
+      async addPiloto(r) { ok(await sb.from("piloto").insert(r)); },
+      async deletePiloto(id) { ok(await sb.from("piloto").delete().eq("id", id)); },
     };
   }
 
@@ -217,6 +220,9 @@
       async deleteAnuncio(id) { needAdmin(); const d = load(); d.anuncios = d.anuncios.filter(x => x.id !== id); save(); return wait(); },
       async adminPagos() { needAdmin(); return wait([...(load().pagos || [])].sort((a, b) => b.created_at.localeCompare(a.created_at))); },
       async registrarPago(p) { needAdmin(); const d = load(); (d.pagos = d.pagos || []).push({ ...p, id: uid(), created_at: now() }); save(); return wait(); },
+      async adminPiloto() { needAdmin(); return wait([...(load().piloto || [])].sort((a, b) => b.created_at.localeCompare(a.created_at))); },
+      async addPiloto(r) { needAdmin(); const d = load(); (d.piloto = d.piloto || []).push({ ...r, id: uid(), created_at: now() }); save(); return wait(); },
+      async deletePiloto(id) { needAdmin(); const d = load(); d.piloto = (d.piloto || []).filter(x => x.id !== id); save(); return wait(); },
       resetDemo() { try { localStorage.removeItem(KEY); } catch (e) {} mem = null; },
     };
   }

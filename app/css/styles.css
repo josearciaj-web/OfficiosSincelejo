@@ -195,3 +195,6 @@ footer{padding-block:24px;color:var(--muted);font-size:13px;border-top:1px solid
 .payform .fld{flex:1 1 140px}
 .payform select,.payform input{width:100%}
 .dest-line{font-size:13px;font-weight:700;color:var(--star)}
+/* Validación del piloto */
+.pilgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:16px}
+.pil .fld{margin-bottom:10px}

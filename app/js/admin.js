@@ -1,11 +1,11 @@
 /* Panel de administración: aprobar técnicos, verificar, moderar reseñas, métricas del MVP
    y monetización (plan destacado, publicidad e ingresos). */
 (function () {
-  const { store, OFICIOS, PRECIOS, MEDIOS, esDestacado, hoy } = window.OS;
+  const { store, OFICIOS, BARRIOS, PRECIOS, MEDIOS, esDestacado, hoy } = window.OS;
   const { $, $$, esc, cop, avg, dec, fecha, fechaCorta, sumarMeses, adCard, normTel, thumbs, header, toast } = window.UI;
   header("adm");
 
-  let tab = "pend", TEC = [], RES = [], CON = [], ANU = [], PAG = [], monErr = "", openPay = null;
+  let tab = "pend", TEC = [], RES = [], CON = [], ANU = [], PAG = [], PIL = [], monErr = "", pilErr = "", openPay = null, openEdit = null;
 
   if (store.mode === "demo") {
     $("#loginHint").innerHTML = `Modo demostración: escribe cualquier correo y la contraseña <b>${esc(window.OS.CFG.DEMO_ADMIN_PASSWORD || "admin123")}</b>.`;
@@ -23,6 +23,8 @@
     // Monetización: si aún no se corrió supabase/monetizacion.sql, el resto del panel sigue funcionando.
     try { [ANU, PAG] = await Promise.all([store.adminAnuncios(), store.adminPagos()]); monErr = ""; }
     catch (e) { ANU = []; PAG = []; monErr = "Para usar la publicidad y los ingresos, corre el archivo supabase/monetizacion.sql en el SQL Editor de Supabase. Detalle: " + e.message; }
+    try { PIL = await store.adminPiloto(); pilErr = ""; }
+    catch (e) { PIL = []; pilErr = "Para registrar el piloto, corre el archivo supabase/piloto.sql en el SQL Editor de Supabase. Detalle: " + e.message; }
     $("#bPend").textContent = TEC.filter(t => t.estado === "pendiente").length;
     render();
   }
@@ -40,8 +42,27 @@
         ${esDestacado(t) ? `<div class="dest-line">★ Plan destacado vigente hasta el ${fechaCorta(t.destacado_hasta)}</div>` : ""}
       </div>
       <div class="acts">${actions}</div>
+      ${openEdit === t.id ? editForm(t) : ""}
       ${openPay === "dest:" + t.id ? payForm("dest", t.id, PRECIOS.destacado, esDestacado(t) ? "Renovar plan destacado" : "Activar plan destacado") : ""}
     </div>`;
+  }
+
+  /* Formulario para corregir los datos que el técnico digitó mal. */
+  function editForm(t) {
+    const tel = String(t.whatsapp || "").replace(/\D/g, "").replace(/^57/, "");
+    const bs = [...new Set([...BARRIOS, ...(t.barrios || [])])];
+    return `<form class="payform editform" data-id="${esc(t.id)}">
+      <b style="flex-basis:100%">Editar perfil</b>
+      <div class="fld" style="flex:1 1 220px"><label>Nombre completo</label><input class="ef-nombre" maxlength="80" value="${esc(t.nombre)}"></div>
+      <div class="fld"><label>Celular (WhatsApp)</label><input class="ef-tel" inputmode="numeric" maxlength="13" value="${esc(tel)}"></div>
+      <div class="fld"><label>Oficio</label><select class="ef-oficio">${Object.entries(OFICIOS).map(([k, v]) => `<option value="${k}" ${k === t.oficio ? "selected" : ""}>${esc(v)}</option>`).join("")}</select></div>
+      <div class="fld"><label>Años de experiencia</label><input type="number" class="ef-anios" min="0" max="60" value="${t.anios || 0}"></div>
+      <div class="fld"><label>Tarifa de visita (COP)</label><input type="number" class="ef-tarifa" min="0" max="2000000" step="1000" value="${t.tarifa || 0}"></div>
+      <div class="fld" style="flex-basis:100%"><span class="lbl">Barrios donde trabaja</span><div class="checks">${bs.map((b, i) => `<label><input type="checkbox" class="ef-b" value="${esc(b)}" ${(t.barrios || []).includes(b) ? "checked" : ""}> ${esc(b)}</label>`).join("")}</div></div>
+      <div class="fld" style="flex-basis:100%"><label>Descripción</label><textarea class="ef-desc" maxlength="300" rows="3">${esc(t.descripcion || "")}</textarea></div>
+      <button class="btn btn-pri sm" type="submit">Guardar cambios</button>
+      <button class="btn btn-ghost sm" type="button" data-act="cerraredit">Cancelar</button>
+    </form>`;
   }
 
   /* Formulario para registrar el pago de un plan (destacado o renovación de anuncio). */
@@ -62,7 +83,8 @@
     if (tab === "pend") {
       const p = TEC.filter(t => t.estado === "pendiente");
       v.innerHTML = p.length ? `<p class="note" style="margin-bottom:12px">Antes de aprobar, verifica la cédula del técnico (en persona o por videollamada) y confirma que las fotos son de sus trabajos.</p><div class="admin-list">${p.map(t => tecRow(t,
-        `<button class="btn btn-pri sm" data-act="aprobarv" data-id="${esc(t.id)}">Aprobar y verificar</button>
+        `<button class="btn btn-ghost sm" data-act="editar" data-id="${esc(t.id)}">Editar</button>
+         <button class="btn btn-pri sm" data-act="aprobarv" data-id="${esc(t.id)}">Aprobar y verificar</button>
          <button class="btn btn-ghost sm" data-act="aprobar" data-id="${esc(t.id)}">Aprobar sin verificar</button>
          <button class="btn btn-bad sm" data-act="rechazar" data-id="${esc(t.id)}">Rechazar</button>`)).join("")}</div>`
         : `<div class="empty">No hay perfiles por revisar.</div>`;
@@ -70,7 +92,7 @@
     if (tab === "tec") {
       const p = TEC.filter(t => t.estado !== "pendiente");
       v.innerHTML = p.length ? `<div class="admin-list">${p.map(t => tecRow(t,
-        (t.estado === "aprobado"
+        `<button class="btn btn-ghost sm" data-act="editar" data-id="${esc(t.id)}">Editar</button>` + (t.estado === "aprobado"
           ? `<button class="btn btn-pri sm" data-act="abrirdest" data-id="${esc(t.id)}">${esDestacado(t) ? "Renovar destacado" : "Activar destacado"}</button>
              ${esDestacado(t) ? `<button class="btn btn-ghost sm" data-act="quitardest" data-id="${esc(t.id)}">Quitar destacado</button>` : ""}
              <button class="btn btn-ghost sm" data-act="verif" data-id="${esc(t.id)}">${t.verificado ? "Quitar verificación" : "Marcar verificado"}</button>
@@ -154,31 +176,79 @@
     </tbody></table></div>`;
   }
 
-  function metricas() {
+  /* Validación del piloto: las cuatro hipótesis de la Tabla 6 calculadas con datos reales.
+     H1 y H4 salen de las visitas y entrevistas que registra el equipo, H2 de los clics a WhatsApp
+     y H3 de la encuesta semanal a los técnicos (servicios conseguidos por la plataforma). */
+  const CRIT = { h1: 50, h2: 60, h3: 25, h4: 30 };
+  function hipotesis() {
+    const conv = PIL.filter(r => r.tipo === "convocatoria"), prec = PIL.filter(r => r.tipo === "precio"), serv = PIL.filter(r => r.tipo === "servicio");
+    const pct = (a, b) => b ? Math.round(a / b * 100) : null;
     const desde = Date.now() - 14 * 864e5;
-    const c14 = CON.filter(c => new Date(c.created_at).getTime() >= desde);
+    const c14 = CON.filter(c => new Date(c.created_at).getTime() >= desde).length;
+    const servicios = serv.reduce((s, r) => s + (r.cantidad || 0), 0);
+    const h1a = conv.filter(r => r.acepta).length, h4a = prec.filter(r => r.acepta).length;
+    return {
+      h1: { v: pct(h1a, conv.length), txt: `${h1a} de ${conv.length} técnicos visitados aceptaron publicar su perfil` },
+      h2: { v: c14, txt: `${c14} clics al botón de WhatsApp en los últimos 14 días (${CON.length} en total)` },
+      h3: { v: pct(servicios, CON.length), txt: `${servicios} servicios conseguidos de ${CON.length} contactos registrados` },
+      h4: { v: pct(h4a, prec.length), txt: `${h4a} de ${prec.length} técnicos entrevistados aceptan pagar el plan destacado` },
+    };
+  }
+  function metricas() {
+    if (pilErr) return `<div class="empty">${esc(pilErr)}</div>`;
+    const H = hipotesis();
+    const kpi = (k, nombre, unidad) => {
+      const h = H[k], c = CRIT[k], sin = h.v === null;
+      const ok = !sin && h.v >= c;
+      return `<div class="kpi"><b>${sin ? "–" : h.v + unidad}</b><span>${nombre}</span><small class="${ok ? "ok" : "no"}">${sin ? "Sin registros todavía" : ok ? `Cumple (criterio ≥ ${c}${unidad})` : `No cumple (criterio ≥ ${c}${unidad})`}</small><span style="display:block;margin-top:4px">${esc(h.txt)}</span></div>`;
+    };
     const aprob = TEC.filter(t => t.estado === "aprobado");
-    const decididos = TEC.filter(t => t.estado !== "pendiente");
-    const tasa = decididos.length ? Math.round(aprob.length / decididos.length * 100) : 0;
-    const pub = RES.filter(r => r.estado === "publicada");
-    const porOficio = Object.keys(OFICIOS).map(k => ({ k, n: c14.filter(c => (TEC.find(t => t.id === c.tecnico_id) || {}).oficio === k).length })).filter(x => x.n).sort((a, b) => b.n - a.n);
-    const maxO = Math.max(1, ...porOficio.map(x => x.n));
-    const top = aprob.map(t => ({ t, n: c14.filter(c => c.tecnico_id === t.id).length })).sort((a, b) => b.n - a.n).slice(0, 8);
-    const kpi = (v, l, s, ok) => `<div class="kpi"><b>${v}</b><span>${l}</span>${s ? `<small class="${ok ? "ok" : "no"}">${s}</small>` : ""}</div>`;
+    const opts = aprob.map(t => `<option value="${esc(t.id)}">${esc(t.nombre)}</option>`).join("");
+    const tipoTxt = { convocatoria: "Visita (H1)", precio: "Entrevista de precio (H4)", servicio: "Encuesta semanal (H3)" };
+    const det = r => r.tipo === "servicio" ? `${r.cantidad} servicio${r.cantidad === 1 ? "" : "s"}` : r.tipo === "precio" ? `${r.acepta ? "Acepta" : "No acepta"} ${cop(r.precio || 0)} al mes` : (r.acepta ? "Aceptó" : "No aceptó");
     return `<div class="kpis">
-      ${kpi(aprob.length, "técnicos publicados", `${TEC.filter(t => t.estado === "pendiente").length} por revisar`, true)}
-      ${kpi(tasa + " %", "perfiles aprobados de los revisados (H1)", tasa >= 50 ? "Cumple el criterio ≥ 50 %" : "Por debajo de 50 %", tasa >= 50)}
-      ${kpi(c14.length, "clics a WhatsApp en 14 días (H2)", c14.length >= 60 ? "Cumple el criterio ≥ 60" : `Faltan ${60 - c14.length} para el criterio`, c14.length >= 60)}
-      ${kpi(pub.length ? dec(avg(pub)) : "–", `calificación promedio (${pub.length} reseñas)`)}
+      ${kpi("h1", "H1. Técnicos que aceptan publicar gratis", " %")}
+      ${kpi("h2", "H2. Clics a WhatsApp en 14 días", "")}
+      ${kpi("h3", "H3. Contactos que terminan en servicio", " %")}
+      ${kpi("h4", "H4. Técnicos que pagarían el plan destacado", " %")}
     </div>
-    <p class="note" style="margin-bottom:12px">H3 (contactos que terminan en servicio) y H4 (disposición a pagar) se miden con la encuesta semanal y las entrevistas a técnicos.</p>
-    <div class="two" style="gap:16px">
-      <div class="box"><h3 style="font-size:17px;margin-bottom:10px">Contactos por oficio, últimos 14 días</h3>
-        ${porOficio.length ? `<div style="display:grid;gap:8px">${porOficio.map(x => `<div><div class="row" style="justify-content:space-between"><span>${esc(OFICIOS[x.k])}</span><b style="font-variant-numeric:tabular-nums">${x.n}</b></div><div class="bar" style="width:${x.n / maxO * 100}%"></div></div>`).join("")}</div>` : '<p class="note">Sin contactos en este periodo.</p>'}</div>
-      <div class="tblwrap"><table><thead><tr><th>Técnico</th><th>Oficio</th><th>Contactos 14 d</th><th>Reseñas</th></tr></thead><tbody>
-        ${top.map(x => `<tr><td>${esc(x.t.nombre)}</td><td>${esc(OFICIOS[x.t.oficio] || "")}</td><td>${x.n}</td><td>${resOf(x.t.id).length}</td></tr>`).join("") || '<tr><td colspan="4">Sin datos</td></tr>'}
-      </tbody></table></div>
-    </div>`;
+    <p class="note" style="margin-bottom:14px">Registra aquí cada visita, entrevista y encuesta del piloto. Los porcentajes se calculan solos con los datos guardados en la base de datos. Usa <b>Exportar evidencias</b> para sacar el archivo CSV que respalda la Tabla 6 del informe.</p>
+    <div class="pilgrid">
+      <form class="box pil" data-tipo="convocatoria"><h3 style="font-size:17px;margin-bottom:10px">Visita a técnico (H1)</h3>
+        <div class="fld"><label>Nombre del técnico</label><input type="text" class="p-nombre" maxlength="80"></div>
+        <div class="fld"><label>¿Aceptó publicar su perfil gratis?</label><select class="p-acepta"><option value="1">Sí</option><option value="0">No</option></select></div>
+        <div class="fld"><label>Lugar o nota (opcional)</label><input type="text" class="p-nota" maxlength="200" placeholder="Ej: Ferretería del Centro"></div>
+        <button class="btn btn-pri sm" type="submit">Guardar visita</button></form>
+      <form class="box pil" data-tipo="precio"><h3 style="font-size:17px;margin-bottom:10px">Entrevista de precio (H4)</h3>
+        <div class="fld"><label>Nombre del técnico</label><input type="text" class="p-nombre" maxlength="80"></div>
+        <div class="f2"><div class="fld"><label>Precio ofrecido al mes</label><input type="number" class="p-precio" min="0" step="1000" value="${PRECIOS.destacado}"></div>
+        <div class="fld"><label>¿Acepta y deja sus datos?</label><select class="p-acepta"><option value="1">Sí</option><option value="0">No</option></select></div></div>
+        <div class="fld"><label>Lo que dijo (opcional)</label><input type="text" class="p-nota" maxlength="200"></div>
+        <button class="btn btn-pri sm" type="submit">Guardar entrevista</button></form>
+      <form class="box pil" data-tipo="servicio"><h3 style="font-size:17px;margin-bottom:10px">Encuesta semanal (H3)</h3>
+        ${opts ? `<div class="fld"><label>Técnico del directorio</label><select class="p-tec">${opts}</select></div>
+        <div class="fld"><label>Servicios que consiguió por la plataforma esta semana</label><input type="number" class="p-cant" min="0" max="100" value="0"></div>
+        <div class="fld"><label>Nota (opcional)</label><input type="text" class="p-nota" maxlength="200"></div>
+        <button class="btn btn-pri sm" type="submit">Guardar encuesta</button>` : '<p class="note">Primero aprueba técnicos en el directorio.</p>'}</form>
+    </div>
+    <div class="row" style="justify-content:space-between;margin-bottom:8px"><h3 style="font-size:17px">Registros del piloto (${PIL.length})</h3><button class="btn btn-ghost sm" data-act="exportar">Exportar evidencias (CSV)</button></div>
+    <div class="tblwrap"><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Técnico</th><th>Resultado</th><th>Nota</th><th></th></tr></thead><tbody>
+      ${PIL.map(r => `<tr><td>${fecha(r.created_at)}</td><td>${tipoTxt[r.tipo]}</td><td>${esc(r.nombre)}</td><td>${det(r)}</td><td style="overflow-wrap:anywhere">${esc(r.nota || "")}</td><td><button class="btn btn-bad sm" data-act="borrarpil" data-id="${esc(r.id)}">Eliminar</button></td></tr>`).join("") || '<tr><td colspan="6">Todavía no hay registros del piloto.</td></tr>'}
+    </tbody></table></div>`;
+  }
+
+  /* CSV con el resumen de las hipótesis, cada registro del piloto y cada clic a WhatsApp. */
+  function exportar() {
+    const H = hipotesis(), q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const filas = [["Seccion", "Fecha", "Tipo", "Tecnico", "Resultado", "Nota"]];
+    [["H1", "≥ 50 %"], ["H2", "≥ 60 clics"], ["H3", "≥ 25 %"], ["H4", "≥ 30 %"]].forEach(([k, c]) => {
+      const h = H[k.toLowerCase()]; filas.push(["Resumen", new Date().toISOString().slice(0, 10), k, "", h.v === null ? "sin registros" : h.v + (k === "H2" ? " clics" : " %"), h.txt + " · criterio " + c]);
+    });
+    PIL.forEach(r => filas.push(["Piloto", r.created_at, r.tipo, r.nombre, r.tipo === "servicio" ? r.cantidad + " servicios" : (r.acepta ? "acepta" : "no acepta") + (r.tipo === "precio" ? " " + r.precio : ""), r.nota || ""]));
+    CON.forEach(c => filas.push(["Clic WhatsApp", c.created_at, "contacto", (TEC.find(t => t.id === c.tecnico_id) || {}).nombre || "", "", c.barrio || ""]));
+    const blob = new Blob(["﻿" + filas.map(f => f.map(q).join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "evidencias_piloto_" + hoy() + ".csv"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
   // Confirmación en dos clics para acciones que no se deshacen.
@@ -190,6 +260,9 @@
     if (act === "abrirdest") { openPay = "dest:" + id; render(); return; }
     if (act === "abrirad") { openPay = "ad:" + id; render(); return; }
     if (act === "cerrarpago") { openPay = null; render(); return; }
+    if (act === "editar") { openEdit = openEdit === id ? null : id; render(); return; }
+    if (act === "cerraredit") { openEdit = null; render(); return; }
+    if (act === "exportar") { exportar(); return; }
     if (act === "borrarad" && armed !== b) { armed = b; b.textContent = "Toca otra vez para eliminar"; setTimeout(() => { if (armed === b) { armed = null; b.textContent = "Eliminar"; } }, 4000); return; }
     if (act === "borrar" && armed !== b) { armed = b; b.textContent = "Toca otra vez para eliminar"; setTimeout(() => { if (armed === b) { armed = null; b.textContent = "Eliminar"; } }, 4000); return; }
     armed = null; b.disabled = true;
@@ -205,6 +278,7 @@
       if (act === "pausarad") await store.updateAnuncio(id, { activo: false });
       if (act === "reanudarad") await store.updateAnuncio(id, { activo: true });
       if (act === "borrarad") await store.deleteAnuncio(id);
+      if (act === "borrarpil") await store.deletePiloto(id);
       if (act === "pagar") {
         const f = b.closest(".payform"), kind = f.dataset.kind, rid = f.dataset.id;
         const meses = +f.querySelector(".pf-meses").value, medio = f.querySelector(".pf-medio").value, valor = Math.max(0, parseInt(f.querySelector(".pf-valor").value, 10) || 0);
@@ -222,7 +296,7 @@
         openPay = null;
       }
       toast({ aprobarv: "Técnico aprobado y verificado", aprobar: "Técnico publicado", rechazar: "Perfil rechazado", retirar: "Técnico retirado del directorio", verif: "Verificación actualizada", borrar: "Técnico eliminado", ocultar: "Reseña oculta", publicar: "Reseña publicada",
-        quitardest: "Plan destacado retirado", pausarad: "Anuncio pausado", reanudarad: "Anuncio reanudado", borrarad: "Anuncio eliminado", pagar: "Pago registrado y plan activado" }[act]);
+        quitardest: "Plan destacado retirado", pausarad: "Anuncio pausado", reanudarad: "Anuncio reanudado", borrarad: "Anuncio eliminado", borrarpil: "Registro eliminado", pagar: "Pago registrado y plan activado" }[act]);
       await reload();
     } catch (ex) { toast("No se pudo completar: " + ex.message, true); b.disabled = false; }
   });
@@ -235,6 +309,43 @@
   });
 
   document.addEventListener("submit", async e => {
+    if (e.target.classList.contains("editform")) {
+      e.preventDefault();
+      const f = e.target, q = c => f.querySelector(c), err = [];
+      const nombre = q(".ef-nombre").value.trim().replace(/\s+/g, " ");
+      const tel = q(".ef-tel").value.replace(/\D/g, "").replace(/^57(?=3\d{9}$)/, "");
+      const barrios = [...f.querySelectorAll(".ef-b:checked")].map(x => x.value);
+      const anios = parseInt(q(".ef-anios").value, 10), tarifa = parseInt(q(".ef-tarifa").value, 10);
+      if (nombre.length < 5) err.push("el nombre (mínimo 5 letras)");
+      if (!/^3\d{9}$/.test(tel)) err.push("un celular de 10 dígitos que empiece por 3");
+      if (!barrios.length) err.push("al menos un barrio");
+      if (!(anios >= 0 && anios <= 60)) err.push("años de experiencia entre 0 y 60");
+      if (!(tarifa >= 0 && tarifa <= 2000000)) err.push("una tarifa válida");
+      if (err.length) { toast("Revisa " + err.join(", "), true); return; }
+      const b = f.querySelector("button[type=submit]"); b.disabled = true;
+      try {
+        await store.updateTecnico(f.dataset.id, { nombre, whatsapp: "57" + tel, oficio: q(".ef-oficio").value, barrios, anios, tarifa, descripcion: q(".ef-desc").value.trim() });
+        openEdit = null; toast("Perfil actualizado"); await reload();
+      } catch (ex) { toast("No se pudo guardar: " + ex.message, true); b.disabled = false; }
+      return;
+    }
+    if (e.target.classList.contains("pil")) {
+      e.preventDefault();
+      const f = e.target, tipo = f.dataset.tipo, v = c => (f.querySelector(c) || {}).value;
+      const r = { tipo, nota: (v(".p-nota") || "").trim() || null };
+      if (tipo === "servicio") {
+        const t = TEC.find(x => x.id === v(".p-tec")); r.tecnico_id = t.id; r.nombre = t.nombre;
+        r.cantidad = Math.max(0, Math.min(100, parseInt(v(".p-cant"), 10) || 0));
+      } else {
+        r.nombre = (v(".p-nombre") || "").trim(); r.acepta = v(".p-acepta") === "1";
+        if (tipo === "precio") r.precio = Math.max(0, parseInt(v(".p-precio"), 10) || 0);
+        if (r.nombre.length < 3) { toast("Escribe el nombre del técnico", true); return; }
+      }
+      const b = f.querySelector("button[type=submit]"); b.disabled = true;
+      try { await store.addPiloto(r); toast("Registro del piloto guardado"); await reload(); }
+      catch (ex) { toast("No se pudo guardar: " + ex.message, true); b.disabled = false; }
+      return;
+    }
     if (e.target.id !== "adForm") return;
     e.preventDefault();
     const negocio = $("#adNeg").value.trim(), mensaje = $("#adMsg").value.trim(), telRaw = $("#adWa").value.trim();
